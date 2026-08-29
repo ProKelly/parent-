@@ -4,7 +4,9 @@ const step = ref<'trigger' | 'breathing' | 'check-in' | 'handoff'>('trigger')
 const eventId = ref<string | null>(null)
 const startedAt = ref<number>(0)
 const breathPhase = ref<'in' | 'out'>('in')
+const lang = ref<'en' | 'fr' | 'pidgin'>('en')
 let breathTimer: ReturnType<typeof setInterval> | null = null
+let audioEl: HTMLAudioElement | null = null
 
 async function start() {
   step.value = 'breathing'
@@ -21,11 +23,20 @@ async function start() {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ lang: lang.value }),
     })
     if (res.ok) {
       const data = await res.json()
       eventId.value = data.event_id
+      // Cached by the service worker after first play (see nuxt.config.ts
+      // runtimeCaching for *.mp3), so it works offline from the second
+      // crisis onward even with no connectivity right now.
+      audioEl = new Audio(data.audio_url)
+      audioEl.play().catch(() => {
+        // Autoplay blocked or offline with nothing cached yet — the
+        // breathing animation still runs on its own, so this is never
+        // a hard failure for the person in crisis.
+      })
     }
   } catch {
     // Fully offline: still runs the local breathing exercise, just
@@ -36,6 +47,7 @@ async function start() {
 
 function finishBreathing() {
   if (breathTimer) clearInterval(breathTimer)
+  if (audioEl) { audioEl.pause(); audioEl = null }
   step.value = 'check-in'
 }
 
@@ -61,6 +73,7 @@ async function resolve(outcome: 'self_resolved' | 'requested_handoff') {
 
 onUnmounted(() => {
   if (breathTimer) clearInterval(breathTimer)
+  if (audioEl) audioEl.pause()
 })
 </script>
 
@@ -71,6 +84,11 @@ onUnmounted(() => {
       <h1 class="font-display text-3xl font-extrabold leading-snug">
         This feeling will pass. Let's breathe together.
       </h1>
+      <select v-model="lang" class="rounded-xl2 border border-white/30 bg-transparent px-4 py-2 text-white focus-ring">
+        <option value="en" class="text-ink">English</option>
+        <option value="fr" class="text-ink">Français</option>
+        <option value="pidgin" class="text-ink">Pidgin</option>
+      </select>
       <button
         class="w-full max-w-xs rounded-xl2 bg-mint py-4 text-lg font-bold text-ink focus-ring"
         @click="start"

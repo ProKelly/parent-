@@ -40,3 +40,19 @@ npm run build   # SSR build — deploy to any Node host
 # or
 npm run generate  # fully static build if you don't need SSR
 ```
+
+## Deploying to Vercel
+
+This directory is deployed on its own — see `/scripts/deploy-split.sh` in the
+repo root, which pushes it to a dedicated `frontend-deploy` branch containing
+*only* this folder's contents at its root. Nuxt 3 is zero-config on Vercel.
+
+```bash
+git push origin frontend-deploy   # first push, or after scripts/deploy-split.sh
+```
+
+Then in the Vercel dashboard: New Project → Import your GitHub repo →
+set **Production Branch** to `frontend-deploy` → add the two env vars from
+`.env.example` (`NUXT_PUBLIC_SUPABASE_URL`, `NUXT_PUBLIC_SUPABASE_ANON_KEY`)
+plus `NUXT_PUBLIC_API_BASE` pointing at your Heroku backend URL → Deploy.
+Every future push to `frontend-deploy` redeploys automatically.
