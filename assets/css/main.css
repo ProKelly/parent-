@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+
+html, body, #__nuxt {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-ink font-body;
+}
+
+/* Large, low-literacy-friendly tap targets everywhere in the app */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+.focus-ring {
+  @apply outline-none ring-2 ring-mint ring-offset-2 ring-offset-paper;
+}
