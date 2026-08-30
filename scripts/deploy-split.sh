@@ -17,8 +17,8 @@
 # ============================================================
 set -euo pipefail
 
-if [[ $(git branch --show-current) != "master" ]]; then
-  echo "Switch to master first: git checkout master"
+if [[ $(git branch --show-current) != "main" ]]; then
+  echo "Switch to main first: git checkout main"
   exit 1
 fi
 

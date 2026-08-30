@@ -65,6 +65,7 @@ create table if not exists milestone_cards (
   title jsonb not null,            -- {"en": "...", "fr": "...", "pidgin": "..."}
   body jsonb not null,             -- short positive-parenting tip, per language
   audio_url jsonb,                 -- {"en": "https://.../clip.mp3", ...} <500KB clips
+  image_url text,                  -- one illustration photo per card (language-independent)
   category text not null default 'development', -- 'development' | 'discipline' | 'health'
   sort_order int default 0
 );

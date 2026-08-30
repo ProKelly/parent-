@@ -5,6 +5,7 @@ const props = defineProps<{
     title: Record<string, string>
     body: Record<string, string>
     audio_url?: Record<string, string>
+    image_url?: string
     category: string
   }
   lang: string
@@ -23,6 +24,7 @@ const categoryMeta: Record<string, { label: string; badge: string }> = {
 }
 
 const playing = ref(false)
+const imageFailed = ref(false)
 
 function playAudio() {
   const url = props.card.audio_url?.[props.lang] ?? props.card.audio_url?.en
@@ -35,37 +37,53 @@ function playAudio() {
 </script>
 
 <template>
-  <div class="flex w-full flex-col gap-4 rounded-xl2 bg-white p-6 shadow-card ring-1 ring-ink/5">
-    <div class="flex items-center justify-between">
-      <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="categoryMeta[card.category]?.badge ?? 'bg-ash/10 text-ash'">
-        {{ categoryMeta[card.category]?.label ?? card.category }}
-      </span>
-      <span v-if="completed" class="flex items-center gap-1 text-sm font-semibold text-mint-deep">
-        ✓ Done
-      </span>
+  <div class="flex w-full flex-col overflow-hidden rounded-xl2 bg-white shadow-card ring-1 ring-ink/5">
+    <!-- Illustration: puts a face on the tip so it reads at a glance,
+         even before the text is read — matters for a low-literacy
+         audience. Cached offline by the service worker after first
+         load; falls back to hiding cleanly if it never loaded. -->
+    <div v-if="card.image_url && !imageFailed" class="relative h-40 w-full shrink-0 bg-ash/10">
+      <img
+        :src="card.image_url"
+        :alt="card.title[lang] ?? card.title.en"
+        loading="lazy"
+        class="h-full w-full object-cover"
+        @error="imageFailed = true"
+      />
     </div>
 
-    <h3 class="font-display text-xl font-bold leading-snug text-ink">
-      {{ card.title[lang] ?? card.title.en }}
-    </h3>
-    <p class="leading-relaxed text-ash">{{ card.body[lang] ?? card.body.en }}</p>
+    <div class="flex flex-col gap-4 p-6">
+      <div class="flex items-center justify-between">
+        <span class="rounded-full px-3 py-1 text-xs font-semibold" :class="categoryMeta[card.category]?.badge ?? 'bg-ash/10 text-ash'">
+          {{ categoryMeta[card.category]?.label ?? card.category }}
+        </span>
+        <span v-if="completed" class="flex items-center gap-1 text-sm font-semibold text-mint-deep">
+          ✓ Done
+        </span>
+      </div>
 
-    <div class="flex gap-3 pt-2">
-      <button
-        v-if="card.audio_url?.[lang] || card.audio_url?.en"
-        class="flex flex-1 items-center justify-center gap-2 rounded-xl2 border border-ink/15 py-3 font-semibold text-ink transition-colors hover:bg-ink/5 focus-ring"
-        @click="playAudio"
-      >
-        <span :class="{ 'motion-safe:animate-pulse': playing }">{{ playing ? '🔊' : '▶' }}</span>
-        Listen
-      </button>
-      <button
-        class="flex-1 rounded-xl2 py-3 font-semibold text-white transition-transform active:scale-[0.98] focus-ring"
-        :class="completed ? 'bg-ash/40' : 'bg-mint hover:bg-mint-deep'"
-        @click="emit('complete', card.id)"
-      >
-        {{ completed ? 'Completed' : 'Mark done' }}
-      </button>
+      <h3 class="font-display text-xl font-bold leading-snug text-ink">
+        {{ card.title[lang] ?? card.title.en }}
+      </h3>
+      <p class="leading-relaxed text-ash">{{ card.body[lang] ?? card.body.en }}</p>
+
+      <div class="flex gap-3 pt-2">
+        <button
+          v-if="card.audio_url?.[lang] || card.audio_url?.en"
+          class="flex flex-1 items-center justify-center gap-2 rounded-xl2 border border-ink/15 py-3 font-semibold text-ink transition-colors hover:bg-ink/5 focus-ring"
+          @click="playAudio"
+        >
+          <span :class="{ 'motion-safe:animate-pulse': playing }">{{ playing ? '🔊' : '▶' }}</span>
+          Listen
+        </button>
+        <button
+          class="flex-1 rounded-xl2 py-3 font-semibold text-white transition-transform active:scale-[0.98] focus-ring"
+          :class="completed ? 'bg-ash/40' : 'bg-mint hover:bg-mint-deep'"
+          @click="emit('complete', card.id)"
+        >
+          {{ completed ? 'Completed' : 'Mark done' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>

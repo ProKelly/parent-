@@ -49,7 +49,21 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
-      navigateFallback: '/',
+      // IMPORTANT: no `navigateFallback` here. This is an SSR app — every
+      // route (/, /mentor, /safehub, /emergency, /login) is correctly
+      // rendered by the Nuxt server on each request. A navigateFallback
+      // makes the service worker intercept ALL navigations and serve a
+      // single cached shell instead, which is what was causing the
+      // blank-screen-until-refresh bug: the very first visit (or any
+      // visit right after a redeploy) hit a stale/mismatched cached
+      // document instead of the real server-rendered page, and only a
+      // manual refresh forced the browser past the service worker's
+      // intercepted fetch. Offline support for the two screens that
+      // genuinely need it (Pocket Mentor content, audio clips) is
+      // handled below via targeted runtimeCaching instead.
+      cleanupOutdatedCaches: true,
+      skipWaiting: true,
+      clientsClaim: true,
       globPatterns: ['**/*.{js,css,html,png,svg,mp3}'],
       runtimeCaching: [
         {
@@ -63,6 +77,18 @@ export default defineNuxtConfig({
           urlPattern: /\.(mp3)$/,
           handler: 'CacheFirst',
           options: { cacheName: 'audio-clips', expiration: { maxEntries: 100 } },
+        },
+        {
+          // Pocket Mentor illustration photos (hosted on Pexels' CDN) —
+          // cached so the cards still show their image after the first
+          // successful load, even with no connectivity.
+          urlPattern: /^https:\/\/images\.pexels\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'mentor-images',
+            expiration: { maxEntries: 60, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            cacheableResponse: { statuses: [0, 200] },
+          },
         },
       ],
     },
