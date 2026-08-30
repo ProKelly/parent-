@@ -10,7 +10,7 @@
 -- the Supabase SQL editor.
 -- ============================================================
 
-\set base 'https://YOUR-PROJECT-REF.supabase.co/storage/v1/object/public/audio'
+\set base 'https://qkzlcnmhorvbgcjhwldq.supabase.co/storage/v1/object/public/audio'
 
 update milestone_cards set audio_url = jsonb_build_object(
   'en', :'base' || '/en/0-3-voice.mp3',
