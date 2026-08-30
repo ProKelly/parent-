@@ -12,9 +12,9 @@ router = APIRouter(prefix="/api/emergency", tags=["emergency"])
 # the anonymized event and tells the client which cached clip to play;
 # it is never on the critical path of actually calming the parent down.
 #
-# Per-language grounding clips, uploaded to Supabase Storage bucket
-# "audio" (see database/update_audio_urls.sql for the matching
-# milestone-card update). Swap YOUR-PROJECT-REF for your real one.
+# Per-language grounding clips, hosted in the Supabase Storage
+# "audio" bucket (project qkzlcnmhorvbgcjhwldq), same bucket the
+# milestone-card audio in database/seed.sql points at.
 GROUNDING_AUDIO_URLS = {
     "en": "https://qkzlcnmhorvbgcjhwldq.supabase.co/storage/v1/object/public/audio/en/grounding-90s.mp3",
     "fr": "https://qkzlcnmhorvbgcjhwldq.supabase.co/storage/v1/object/public/audio/fr/grounding-90s.mp3",
