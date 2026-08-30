@@ -6,11 +6,14 @@ const supabase = useSupabase()
 const phone = ref('')
 const otp = ref('')
 const stage = ref<'phone' | 'otp' | 'done'>('phone')
+const sending = ref(false)
 const error = ref('')
 
 async function sendOtp() {
   error.value = ''
+  sending.value = true
   const { error: err } = await supabase.auth.signInWithOtp({ phone: phone.value })
+  sending.value = false
   if (err) {
     error.value = err.message
     return
@@ -30,37 +33,46 @@ async function verifyOtp() {
 </script>
 
 <template>
-  <div class="mx-auto flex min-h-screen max-w-md flex-col justify-center gap-6 px-6">
-    <header>
-      <h1 class="font-display text-2xl font-extrabold text-ink">Save your progress</h1>
-      <p class="text-ash">Optional — everything still works without an account.</p>
-    </header>
+  <div class="relative flex min-h-screen flex-col justify-center overflow-hidden">
+    <BrandMotif />
+    <div class="relative mx-auto flex w-full max-w-md flex-col gap-8 px-6">
+      <Logo :size="34" />
 
-    <form v-if="stage === 'phone'" class="flex flex-col gap-3" @submit.prevent="sendOtp">
-      <input
-        v-model="phone"
-        type="tel"
-        placeholder="+237 6XX XXX XXX"
-        class="rounded-xl2 border border-ink/15 px-4 py-3 focus-ring"
-      />
-      <button class="rounded-xl2 bg-ink py-3 font-semibold text-white focus-ring" type="submit">
-        Send code
-      </button>
-    </form>
+      <header>
+        <h1 class="font-display text-2xl font-bold text-ink">Save your progress</h1>
+        <p class="text-ash">Optional — everything still works without an account.</p>
+      </header>
 
-    <form v-else-if="stage === 'otp'" class="flex flex-col gap-3" @submit.prevent="verifyOtp">
-      <input
-        v-model="otp"
-        inputmode="numeric"
-        placeholder="6-digit code"
-        class="rounded-xl2 border border-ink/15 px-4 py-3 focus-ring"
-      />
-      <button class="rounded-xl2 bg-mint py-3 font-semibold text-ink focus-ring" type="submit">
-        Confirm
-      </button>
-    </form>
+      <form v-if="stage === 'phone'" class="flex flex-col gap-3" @submit.prevent="sendOtp">
+        <input
+          v-model="phone"
+          type="tel"
+          placeholder="+237 6XX XXX XXX"
+          class="rounded-xl2 border border-ink/15 bg-white px-4 py-3 focus-ring"
+        />
+        <button
+          class="rounded-xl2 bg-ink py-3 font-semibold text-white shadow-card transition-transform active:scale-[0.98] focus-ring disabled:opacity-60"
+          type="submit"
+          :disabled="sending"
+        >
+          {{ sending ? 'Sending…' : 'Send code' }}
+        </button>
+      </form>
 
-    <p v-if="error" class="text-sm text-alert">{{ error }}</p>
-    <NuxtLink to="/" class="text-center text-sm text-ash underline">Skip for now</NuxtLink>
+      <form v-else-if="stage === 'otp'" class="flex flex-col gap-3 motion-safe:animate-rise-in" @submit.prevent="verifyOtp">
+        <input
+          v-model="otp"
+          inputmode="numeric"
+          placeholder="6-digit code"
+          class="rounded-xl2 border border-ink/15 bg-white px-4 py-3 tracking-widest focus-ring"
+        />
+        <button class="rounded-xl2 bg-mint py-3 font-semibold text-ink shadow-card transition-transform active:scale-[0.98] focus-ring" type="submit">
+          Confirm
+        </button>
+      </form>
+
+      <p v-if="error" class="text-sm text-alert">{{ error }}</p>
+      <NuxtLink to="/" class="text-center text-sm font-medium text-ash underline underline-offset-2">Skip for now</NuxtLink>
+    </div>
   </div>
 </template>

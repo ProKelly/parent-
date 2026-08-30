@@ -1,15 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600&display=swap');
 
 html, body, #__nuxt {
   height: 100%;
 }
 
 body {
-  @apply bg-paper text-ink font-body;
+  @apply bg-paper text-ink font-body antialiased;
 }
 
 /* Large, low-literacy-friendly tap targets everywhere in the app */
@@ -17,15 +17,51 @@ button, a {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Respect reduced-motion preferences */
+/* Visible only on real keyboard focus, never on mouse/touch tap —
+   the earlier version applied the ring unconditionally, which drew a
+   permanent mint outline around every button and card. */
+.focus-ring {
+  @apply outline-none;
+}
+.focus-ring:focus-visible {
+  @apply ring-2 ring-mint ring-offset-2 ring-offset-paper;
+}
+
+/* Page-to-page transition: a quiet fade + rise, never jarring */
+.page-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-leave-active {
+  transition: opacity 0.12s ease;
+}
+.page-leave-to {
+  opacity: 0;
+}
+
+/* Mentor card swap: a short horizontal slide */
+.card-swap-enter-active,
+.card-swap-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.card-swap-enter-from {
+  opacity: 0;
+  transform: translateX(12px);
+}
+.card-swap-leave-to {
+  opacity: 0;
+  transform: translateX(-12px);
+}
+
+/* Respect reduced-motion preferences everywhere, including the
+   Tailwind-driven keyframe animations (drift, pulse-ring, rise-in) */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *, .page-enter-active, .page-leave-active, .card-swap-enter-active, .card-swap-leave-active {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-}
-
-.focus-ring {
-  @apply outline-none ring-2 ring-mint ring-offset-2 ring-offset-paper;
 }

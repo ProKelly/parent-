@@ -47,20 +47,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto flex max-w-md flex-col gap-5 px-5 pb-6 pt-8">
-    <header>
-      <p class="text-xs font-semibold uppercase tracking-widest text-mint">Community Safe Hub</p>
-      <h1 class="font-display text-2xl font-extrabold text-ink">Help near you</h1>
-      <p class="text-ash">Health centers, safe spaces, and peer educators — sorted by distance.</p>
-    </header>
+  <div class="relative overflow-hidden">
+    <BrandMotif />
+    <AppHeader />
 
-    <div v-if="loading" class="py-16 text-center text-ash">Finding places near you…</div>
-    <div v-else-if="errorMsg" class="rounded-xl2 bg-white p-6 text-center text-ash shadow-sm">{{ errorMsg }}</div>
-    <div v-else-if="!resources.length" class="rounded-xl2 bg-white p-6 text-center text-ash shadow-sm">
-      Nothing verified nearby yet. A peer educator is being trained in your region.
+    <div class="relative mx-auto flex max-w-md flex-col gap-5 px-5 pb-6 pt-6">
+      <header>
+        <p class="text-xs font-semibold uppercase tracking-widest text-mint-deep">Community Safe Hub</p>
+        <h1 class="font-display text-2xl font-bold text-ink">Help near you</h1>
+        <p class="text-ash">Health centers, safe spaces, and peer educators — sorted by distance.</p>
+      </header>
+
+      <div v-if="loading" class="flex flex-col gap-3">
+        <SkeletonCard :lines="2" />
+        <SkeletonCard :lines="2" />
+        <SkeletonCard :lines="2" />
+      </div>
+      <div v-else-if="errorMsg" class="rounded-xl2 bg-white p-6 text-center text-ash shadow-card">{{ errorMsg }}</div>
+      <div v-else-if="!resources.length" class="rounded-xl2 bg-white p-6 text-center text-ash shadow-card">
+        Nothing verified nearby yet. A peer educator is being trained in your region.
+      </div>
+      <SafeHubList v-else :resources="resources" />
     </div>
-    <SafeHubList v-else :resources="resources" />
   </div>
-
-
 </template>
