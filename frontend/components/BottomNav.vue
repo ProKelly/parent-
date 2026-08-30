@@ -1,5 +1,9 @@
 <script setup lang="ts">
 const route = useRoute()
+// v-show (not v-if): stays in the DOM, only CSS display toggles. v-if
+// would remove/re-add the node on the same tick as the page transition
+// when navigating to/from /emergency — that DOM-structure race is what
+// caused the blank-screen-until-refresh bug.
 const visible = computed(() => route.path !== '/emergency')
 
 const items = [
@@ -11,7 +15,7 @@ const items = [
 
 <template>
   <nav
-    v-if="visible"
+    v-show="visible"
     class="fixed inset-x-0 bottom-0 z-40 flex justify-around border-t border-ink/10 bg-paper/95 pb-[env(safe-area-inset-bottom)] pt-2 backdrop-blur"
   >
     <NuxtLink

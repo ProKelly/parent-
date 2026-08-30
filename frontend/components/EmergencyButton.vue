@@ -4,6 +4,10 @@
 // locked/low-scroll view. Deliberately simple: no confirmation modal,
 // no extra taps — the whole point is zero friction during a crisis.
 // Hidden only on /emergency itself, where it would be redundant.
+// Uses v-show (not v-if) so the button stays in the DOM and only its
+// CSS display toggles — v-if would add/remove the node on the exact
+// same tick as the page transition when navigating to/from
+// /emergency, which is what caused the blank-screen bug.
 const route = useRoute()
 const router = useRouter()
 
@@ -16,7 +20,7 @@ function trigger() {
 
 <template>
   <button
-    v-if="visible"
+    v-show="visible"
     aria-label="Get help now"
     class="group fixed bottom-24 right-5 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-alert text-white shadow-soft transition-transform active:scale-95 focus-ring"
     @click="trigger"
