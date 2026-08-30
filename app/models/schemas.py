@@ -55,6 +55,7 @@ class MilestoneCardOut(BaseModel):
     title: dict
     body: dict
     audio_url: dict
+    image_url: Optional[str] = None
     category: str
 
 
